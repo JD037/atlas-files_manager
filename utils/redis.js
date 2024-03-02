@@ -32,8 +32,13 @@ class RedisClient {
    * @return {Promise<string|null>}
    */
   async get(key) {
-    const value = await this.client.get(key);
-    return value;
+    try {
+      const value = await this.client.get(key);
+      return value;
+    } catch (err) {
+      console.error(err);
+      return null; // Ensuring that null is returned on error.
+    }
   }
 
   /**
@@ -44,7 +49,11 @@ class RedisClient {
    * @return {Promise<void>} - A promise that resolves when the key is set.
    */
   async set(key, value, duration) {
-    await this.client.setEx(key, duration, value);
+    try {
+      await this.client.setEx(key, duration, value);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   /**
@@ -53,7 +62,11 @@ class RedisClient {
    * @return {Promise<void>} - A promise that resolves when the key is deleted.
    */
   async del(key) {
-    await this.client.del(key);
+    try {
+      await this.client.del(key);
+    } catch (err) {
+      console.error(err);
+    }
   }
 }
 
