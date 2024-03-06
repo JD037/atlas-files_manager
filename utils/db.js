@@ -29,10 +29,10 @@ class DBClient {
 
   isAlive() {
     if (!this.db) {
-        return !!this.db;
-      }
       return !!this.db;
     }
+    return !!this.db;
+  }
 
   async nbUsers() {
     try {
