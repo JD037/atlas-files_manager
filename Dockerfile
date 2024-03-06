@@ -47,11 +47,5 @@ RUN cd /tmp/node_packages && npm install
 # Create test user
 RUN useradd -M correction_tester
 
-
-
-
-
-
-
-
-
+# Keep the container running indef 
+CMD ["tail", "-f", "/dev/null"]
