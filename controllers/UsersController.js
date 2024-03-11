@@ -1,6 +1,6 @@
 #!/usr/bin/node
 const sha1 = require('sha1');
-const userDb = require('../utils/db');
+const dbClient = require ('../utils/db');
 
 class UsersController {
   // Creating a user, must specify an email and a password
@@ -9,25 +9,21 @@ class UsersController {
 
     // Check if email is provided
     if (!email) {
-      return request.status(400).json({ error: 'Missing email' });
+      return response.status(400).json({ error: 'Missing email' });
     }
-
     // Check if password is provided
     if (!password) {
-      return request.status(400).json({ error: 'Missing password' });
+      return response.status(400).json({ error: 'Missing password' });
     }
-
     // Check if email already exists
-    const existingUser = await userDb.users.findOne({ email });
+    const existingUser = await dbClient.users.findOne({ email });
     if (existingUser) {
-      return request.status(400).json({ error: 'Already exist' });
+      return response.status(400).json({ error: 'Already exists' });
     }
-
     // Hash the password using SHA1
     const hashedPassword = sha1(password);
-
     // Create new user
-    const newUser = await userDb.users.insertOne({
+    const newUser = await dbClient.users.insertOne({
       email,
       password: hashedPassword,
     });
