@@ -20,6 +20,12 @@ const AuthController = {
     // Extract email and password from Authorization header
     const base64Credentials = authHeader.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('utf8').split(':');
+
+    // Check if credentials are valid (email:password format)
+    if (credentials.length !== 2) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     const [email, password] = credentials;
 
     // Find user in database using email and hashed password
