@@ -4,7 +4,7 @@ import routes from './routes/index';
 const app = express();
 const port = process.env.PORT || 5000;
 
-// 1 - Parse JSON bodies as sent by API clients (it executes first this one)
+// 1 - Middleware for parsing JSON bodies as sent by API clients (it executes first this one)
 app.use(express.json());
 // 2- Parse URL-encoded bodies
 app.use(routes);
