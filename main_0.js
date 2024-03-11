@@ -1,4 +1,4 @@
-// 
+//
 import redisClient from './utils/redis';
 
 (async () => {
