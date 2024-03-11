@@ -1,8 +1,8 @@
 // Import required modules
 import sha1 from 'sha1';
 import { v4 as uuidv4 } from 'uuid';
-import dbClient from '../utils/db.js';
-import redisClient from '../utils/redis.js';
+import dbClient from '../utils/db';
+import redisClient from '../utils/redis';
 
 // Constants for Redis authentication
 const REDIS_AUTH_PREFIX = 'auth_';
