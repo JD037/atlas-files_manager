@@ -43,20 +43,20 @@ class UsersController {
     // Get the token from the X-Token header
     const token = req.headers['x-token'];
     const key = `${REDIS_AUTH_PREFIX}${token}`;
-
+  
     // Get the user ID associated with the token from Redis
     const userId = await redisClient.get(key);
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-
+  
     // Find the user in the database using the user ID
     const user = await dbClient.users.findOne({ _id: userId });
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-
-    // Return the user's ID and email
+  
+    // Return the user's ID and email (email is stored separately)
     return res.status(200).json({ id: user._id, email: user.email });
   }
 }
