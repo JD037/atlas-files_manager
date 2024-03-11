@@ -1,5 +1,5 @@
 const sha1 = require('sha1');
-const dbClient = require ('../utils/db');
+const dbClient = require('../utils/db');
 
 class UsersController {
   // Creating a user, must specify an email and a password
