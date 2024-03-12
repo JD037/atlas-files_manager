@@ -1,5 +1,6 @@
 const sha1 = require('sha1');
-const dbClient = require('../utils/db');
+const mongodb = require('mongodb');
+const dbClient = require('../utils/db'); // import mongo user
 const redisClient = require('../utils/redis');
 
 const REDIS_AUTH_PREFIX = 'auth_';
@@ -41,21 +42,20 @@ class UsersController {
   // GET /users/me endpoint (Task 4)
   static async getMe(req, res) {
     // Get the token from the X-Token header
-    const token = req.headers['x-token'];
+    const token = req.header('x-token');
     const key = `${REDIS_AUTH_PREFIX}${token}`;
-  
+    console.log(`Token received: ${token}`);
+
     // Get the user ID associated with the token from Redis
     const userId = await redisClient.get(key);
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-  
-    // Find the user in the database using the user ID
-    const user = await dbClient.users.findOne({ _id: userId });
-    if (!user) {
+    // Find the user in the mongo database using the user ID
+    const user = await dbClient.users.findOne({ _id: new mongodb.ObjectId(userId) });
+    /* if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
-    }
-  
+    } */
     // Return the user's ID and email (email is stored separately)
     return res.status(200).json({ id: user._id, email: user.email });
   }
