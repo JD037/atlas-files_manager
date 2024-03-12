@@ -53,10 +53,6 @@ class UsersController {
     }
     // Find the user in the mongo database using the user ID
     const user = await dbClient.users.findOne({ _id: new mongodb.ObjectId(userId) });
-    /* if (!user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    } */
-    // Return the user's ID and email (email is stored separately)
     return res.status(200).json({ id: user._id, email: user.email });
   }
 }
