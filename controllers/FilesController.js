@@ -33,8 +33,9 @@ class FilesController {
     }
     // Its goes to find data in the MongoDB
     if (parentId !== 0) {
-      // const parentObjectId = new mongodb.ObjectId(parentId);
-      const file = await dbClient.files.findOne({ id: parentId });
+    // retrieve the parentId object from mongoDB as ObjectId
+      const parentObjectId = new mongodb.ObjectId(parentId);
+      const file = await dbClient.files.findOne({ _id: parentObjectId });
 
       if (!file) {
         return response.status(400).json({ error: 'Parent not found' });
