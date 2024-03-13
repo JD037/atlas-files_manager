@@ -12,7 +12,7 @@ class FilesController {
     // Get the user ID associated with the token from Redis
     const currentId = await redisClient.get(key);
     if (!currentId) {
-      return request.status(401).json({ error: 'Unauthorized' });
+      return response.status(401).json({ error: 'Unauthorized' });
     }
     // Extract file metadata from request body
     const {
@@ -20,16 +20,16 @@ class FilesController {
     } = request.body;
     // if the name is missing returns an error Missing name with a status code 400
     if (!name) {
-      return request.status(400).json({ error: 'Missing name' });
+      return response.status(400).json({ error: 'Missing name' });
     }
     // If the type is missing or not part of the list
     // of accepted type, return an error Missing type with a status code 400
     if (!['folder', 'file', 'image'].includes(type)) {
-      return request.status(400).json({ error: 'Missing type' });
+      return response.status(400).json({ error: 'Missing type' });
     }
     // if the data is missing and type != folder, return an error Missing data
     if (!data && type !== 'folder') {
-      return request.status(400).json({ error: 'Missing data' });
+      return response.status(400).json({ error: 'Missing data' });
     }
     // Its goes to find data in the MongoDB
     if (parentId !== 0) {
@@ -37,10 +37,10 @@ class FilesController {
       const file = await dbClient.files.findOne({ id: parentObjectId });
 
       if (!file) {
-        return request.status(400).json({ error: 'Parent not found' });
+        return response.status(400).json({ error: 'Parent not found' });
       }
       if (file.type !== 'folder') {
-        return request.status(400).json({ error: 'Parent is not a folder' });
+        return response.status(400).json({ error: 'Parent is not a folder' });
       }
     }
     // The user ID should be added to the document saved in DB - as owner of a file
