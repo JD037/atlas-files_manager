@@ -39,7 +39,7 @@ class FilesController {
       if (!file) {
         return response.status(400).json({ error: 'Parent not found' });
       }
-      if (file.type !== 'folder') {
+      if (parentObjectId.type !== 'folder') {
         return response.status(400).json({ error: 'Parent is not a folder' });
       }
     }
@@ -54,11 +54,11 @@ class FilesController {
         parentId,
       });
     } else {
-      const folderPath = process.env.FOLDER_PATH || '/tmp/files_manager';
-      if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath);
+      const FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager';
+      if (!fs.existsSync(FOLDER_PATH)) {
+        fs.mkdirSync(FOLDER_PATH);
       }
-      const localPath = `${folderPath}/${uuid()}`;
+      const localPath = `${FOLDER_PATH}/${uuid()}`;
       const decodedContent = Buffer.from(request.body.data, 'base64').toString('utf-8');
       await fs.promises.writeFile(localPath, decodedContent);
       newFile = await dbClient.files.insertOne({
