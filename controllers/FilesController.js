@@ -33,16 +33,17 @@ class FilesController {
     }
     // Its goes to find data in the MongoDB
     if (parentId !== 0) {
-      const parentObjectId = new mongodb.ObjectId(parentId);
-      const file = await dbClient.files.findOne({ id: parentObjectId });
+      // const parentObjectId = new mongodb.ObjectId(parentId);
+      const file = await dbClient.files.findOne({ id: parentId });
 
       if (!file) {
         return response.status(400).json({ error: 'Parent not found' });
       }
-      if (parentObjectId.type !== 'folder') {
+      if (file.type !== 'folder') {
         return response.status(400).json({ error: 'Parent is not a folder' });
       }
     }
+
     // The user ID should be added to the document saved in DB - as owner of a file
     let newFile;
     if (type === 'folder') {
