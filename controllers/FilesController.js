@@ -76,5 +76,50 @@ class FilesController {
       id: newFile.insertedId, userId: currentId, name, type, isPublic, parentId,
     });
   }
+
+ static async getShow(request, response) {
+    const { id } = request.params;
+    const token = request.header('x-token');
+    const key = `auth_${token}`;
+    const userId = await redisClient.get(key);
+
+    if (!userId) {
+      return response.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const file = await dbClient.files.findOne({
+      _id: new mongodb.ObjectId(id),
+      userId: new mongodb.ObjectId(userId),
+    });
+
+    if (!file) {
+      return response.status(404).json({ error: 'Not found' });
+    }
+
+    return response.status(200).send(file);
+  }
+
+  static async getIndex(request, response) {
+    const token = request.header('x-token');
+    const key = `auth_${token}`;
+    const userId = await redisClient.get(key);
+
+    if (!userId) {
+      return response.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { parentId, page } = request.query;
+    const pageSize = 20;
+    const pipeline = [
+      { $match: { parentId: parentId ? new mongodb.ObjectId(parentId) : 0 } },
+      { $skip: page * pageSize },
+      { $limit: pageSize },
+    ];
+
+    const files = await dbClient.files.aggregate(pipeline).toArray();
+
+    return response.status(200).send(files);
+  }
 }
+
 module.exports = FilesController;

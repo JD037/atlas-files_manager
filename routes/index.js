@@ -19,4 +19,9 @@ router.get('/users/me', UsersController.getMe);
 router.post('/users', UsersController.postNew);
 router.post('/files', FilesController.postUpload);
 
+// Task 6 routes
+router.get('/files/:id', FilesController.getShow);
+router.get('/files', FilesController.getIndex);
+
+
 export default router;
