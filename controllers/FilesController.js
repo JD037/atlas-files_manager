@@ -142,16 +142,16 @@ class FilesController {
   static async putPublish(request, response) {
     const token = request.header('x-token');
     const key = `auth_${token}`;
-    const userId = await redisClient.get(key);
+    const currUserId = await redisClient.get(key);
 
-    if (!userId) {
+    if (!currUserId) {
       return response.status(401).json({ error: 'Unauthorized' });
     }
 
     const file = await dbClient.files.findOne({
       _id: mongodb.ObjectId(request.params.id),
     });
-    if (!file || userId.toString() !== file.userId.toString()) {
+    if (!file || currUserId.toString() !== file.userId.toString()) {
       return response.status(404).json({ error: 'Not found' });
     }
     file.isPublic = true;
@@ -170,14 +170,14 @@ class FilesController {
   static async putUnpublish(request, response) {
     const token = request.header('x-token');
     const key = `auth_${token}`;
-    const userId = await redisClient.get(key);
-    if (!userId) {
+    const currUserId = await redisClient.get(key);
+    if (!currUserId) {
       return response.status(401).json({ error: 'Unauthorized' });
     }
     const file = await dbClient.files.findOne({
       _id: mongodb.ObjectId(request.params.id),
     });
-    if (!file || userId.toString() !== file.userId.toString()) {
+    if (!file || currUserId.toString() !== file.userId.toString()) {
       return response.status(404).json({ error: 'Not found' });
     }
     file.isPublic = false;
