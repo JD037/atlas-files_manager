@@ -167,29 +167,29 @@ class FilesController {
   }
 
   // Unpublish method
-  static async putUnpublish(req, res) {
-    const fileId = req.params.id;
-    const token = req.header('X-Token');
+  static async putUnpublish(request, response) {
+    const fileId = request.params.id;
+    const token = request.header('x-Token');
 
     try {
       const currUserId = await redisClient.get(`auth_${token}`);
 
       if (!currUserId) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return response.status(401).json({ error: 'Unauthorized' });
       }
       const file = await dbClient.files.findOneAndUpdate(
         { _id: new mongodb.ObjectId(fileId), userId: new mongodb.ObjectId(currUserId) },
         { $set: { isPublic: false } },
-        { returnOriginal: false }
+        { returnOriginal: false },
       );
 
       if (!file.value) {
-        return res.status(404).json({ error: 'Not found' });
+        return response.status(404).json({ error: 'Not found' });
       }
-      return res.status(200).json(file.value);
+      return response.status(200).json(file.value);
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: 'Server error' });
+      return response.status(500).json({ error: 'Server error' });
     }
   }
 }
