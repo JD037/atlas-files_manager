@@ -6,21 +6,23 @@ import FilesController from '../controllers/FilesController';
 
 const router = express.Router();
 
-// GETs
+// GETs ROUTES ********************************
 router.get('/status', AppController.getStatus);
 router.get('/stats', AppController.getStats);
-
 // Task 4 routes
 router.get('/connect', AuthController.getConnect);
 router.get('/disconnect', AuthController.getDisconnect);
 router.get('/users/me', UsersController.getMe);
-
-// POSTs
-router.post('/users', UsersController.postNew);
-router.post('/files', FilesController.postUpload);
-
 // Task 6 routes
 router.get('/files/:id', FilesController.getShow);
 router.get('/files', FilesController.getIndex);
+
+// POSTs ROUTES **********************************
+router.post('/users', UsersController.postNew);
+router.post('/files', FilesController.postUpload);
+
+// PUTS ROUTES
+router.put('/files/:id/publish', FilesController.putPublish);
+router.put('/files/:id/publish', FilesController.putUnpublish);
 
 export default router;

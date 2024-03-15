@@ -1,3 +1,7 @@
+/* Task5. First file: FilesController.postUpload
+*  Task6. Get and list file - FilesController.(getShow, getIndex)
+*  Task7. File publish/unpublish - FilesController.(putPublish,putUnpublish)
+*/
 const mongodb = require('mongodb');
 const { v4: uuid } = require('uuid');
 const fs = require('fs');
@@ -77,6 +81,7 @@ class FilesController {
     });
   }
 
+  // task6. Get and list file
   static async getShow(request, response) {
     const { id } = request.params;
     const token = request.header('x-token');
@@ -124,6 +129,60 @@ class FilesController {
     const files = await dbClient.files.aggregate(pipeline).toArray();
 
     return response.status(200).send(files);
+  }
+
+  // task7. File publish
+  static async putPublish(request, response) {
+    const token = request.header('x-token');
+    const key = `auth_${token}`;
+    const userId = await redisClient.get(key);
+
+    if (!userId) {
+      return response.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const file = await dbClient.files.findOne({
+      _id: mongodb.ObjectId(request.params.id),
+    });
+    if (!file || userId.toString() !== file.userId.toString()) {
+      return response.status(404).json({ error: 'Not found' });
+    }
+    file.isPublic = true;
+    await dbClient.files.updateOne({ _id: file._id }, { $set: { isPublic: true } });
+    return response.json({
+      id: file._id,
+      userId: file.userId,
+      name: file.name,
+      type: file.type,
+      isPublic: file.isPublic,
+      parentId: file.parentId,
+    });
+  }
+
+  // Unpublish method
+  static async putUnpublish(request, response) {
+    const token = request.header('x-token');
+    const key = `auth_${token}`;
+    const userId = await redisClient.get(key);
+    if (!userId) {
+      return response.status(401).json({ error: 'Unauthorized' });
+    }
+    const file = await dbClient.files.findOne({
+      _id: mongodb.ObjectId(request.params.id),
+    });
+    if (!file || userId.toString() !== file.userId.toString()) {
+      return response.status(404).json({ error: 'Not found' });
+    }
+    file.isPublic = false;
+    await dbClient.files.updateOne({ _id: file._id }, { $set: { isPublic: true } });
+    return response.json({
+      id: file._id,
+      userId: file.userId,
+      name: file.name,
+      type: file.type,
+      isPublic: file.isPublic,
+      parentId: file.parentId,
+    });
   }
 }
 
