@@ -201,17 +201,9 @@ class FilesController {
     const key = `auth_${token}`;
     const currUserId = await redisClient.get(key);
 
-    if (!currUserId) {
-      return response.status(401).json({ error: 'Unauthorized' });
-    }
-
     const file = await dbClient.files.findOne({ _id: new mongodb.ObjectId(id) });
 
     if (!file) {
-      return response.status(404).json({ error: 'Not found' });
-    }
-
-    if (!file.isPublic && currUserId.toString() !== file.userId.toString()) {
       return response.status(404).json({ error: 'Not found' });
     }
 
@@ -219,18 +211,21 @@ class FilesController {
       return response.status(400).json({ error: "A folder doesn't have content" });
     }
 
-    try {
-      const filePath = file.localPath;
-      const fileContent = await fs.promises.readFile(filePath);
-      const mimeType = mime.lookup(file.name);
-
-      response.setHeader('Content-Type', mimeType);
-      response.send(fileContent);
-      return null; // to make linter happy
-    } catch (error) {
-      console.error(error);
+    if (!file.isPublic && (!currUserId || currUserId.toString() !== file.userId.toString())) {
       return response.status(404).json({ error: 'Not found' });
     }
+
+    const filePath = file.localPath;
+    if (!fs.existsSync(filePath)) {
+      return response.status(404).json({ error: 'Not found' });
+    }
+
+    const fileContent = await fs.promises.readFile(filePath);
+    const mimeType = mime.lookup(file.name);
+
+    response.setHeader('Content-Type', mimeType);
+    response.send(fileContent);
+    return null;
   }
 }
 
