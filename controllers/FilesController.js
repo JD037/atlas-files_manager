@@ -5,6 +5,7 @@
 const mongodb = require('mongodb');
 const { v4: uuid } = require('uuid');
 const fs = require('fs');
+const mime = require('mime-types');
 const dbClient = require('../utils/db'); // import mongo user
 const redisClient = require('../utils/redis');
 
@@ -190,6 +191,45 @@ class FilesController {
     } catch (error) {
       console.error(error);
       return response.status(500).json({ error: 'Server error' });
+    }
+  }
+
+  // Task 8: File data
+  static async getFile(request, response) {
+    const { id } = request.params;
+    const token = request.header('x-token');
+    const key = `auth_${token}`;
+    const currUserId = await redisClient.get(key);
+
+    if (!currUserId) {
+      return response.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const file = await dbClient.files.findOne({ _id: new mongodb.ObjectId(id) });
+
+    if (!file) {
+      return response.status(404).json({ error: 'Not found' });
+    }
+
+    if (!file.isPublic && currUserId.toString() !== file.userId.toString()) {
+      return response.status(404).json({ error: 'Not found' });
+    }
+
+    if (file.type === 'folder') {
+      return response.status(400).json({ error: "A folder doesn't have content" });
+    }
+
+    try {
+      const filePath = file.localPath;
+      const fileContent = await fs.promises.readFile(filePath);
+      const mimeType = mime.lookup(file.name);
+
+      response.setHeader('Content-Type', mimeType);
+      response.send(fileContent);
+      return null; // to make linter happy
+    } catch (error) {
+      console.error(error);
+      return response.status(404).json({ error: 'Not found' });
     }
   }
 }
