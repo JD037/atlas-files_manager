@@ -81,54 +81,61 @@ class FilesController {
     });
   }
 
+  // **********************************
   // task6. Get and list file
   static async getShow(request, response) {
     const { id } = request.params;
     const token = request.header('x-token');
     const key = `auth_${token}`;
-    const userId = await redisClient.get(key);
+    const currUserId = await redisClient.get(key);
 
-    if (!userId) {
+    if (!currUserId) {
       return response.status(401).json({ error: 'Unauthorized' });
     }
 
     const file = await dbClient.files.findOne({
       _id: new mongodb.ObjectId(id),
-      userId: new mongodb.ObjectId(userId),
+      // userId: new mongodb.ObjectId(userId),
     });
 
-    if (!file) {
+    if (!file || currUserId.toString() !== file.userId.toString()) {
       return response.status(404).json({ error: 'Not found' });
     }
-
-    return response.status(200).send(file);
+    return response.json({ ...file });
   }
 
   static async getIndex(request, response) {
     const token = request.header('x-token');
     const key = `auth_${token}`;
-    const userId = await redisClient.get(key);
+    const currUserId = await redisClient.get(key);
 
-    if (!userId) {
+    if (!currUserId) {
       return response.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { parentId = '0', page = '0' } = request.query;
-    const pageSize = 20;
-    const pipeline = [
-      {
-        $match: {
-          parentId: parentId === '0' ? 0 : new mongodb.ObjectId(parentId),
-          userId: new mongodb.ObjectId(userId),
-        },
-      },
-      { $skip: parseInt(page, 10) * pageSize },
-      { $limit: pageSize },
-    ];
-
-    const files = await dbClient.files.aggregate(pipeline).toArray();
-
-    return response.status(200).send(files);
+    const { parentId, page = 0 } = request.query;
+    let fileList;
+    if (parentId) {
+      fileList = await dbClient.files.aggregate([
+        { $match: { parentId: new mongodb.ObjectId(parentId) } },
+        { $skip: page * 20 },
+        { $limit: 20 },
+      ]).toArray();
+    } else {
+      fileList = await dbClient.files.aggregate([
+        { $match: { userId: new mongodb.ObjectId(new mongodb.ObjectId(currUserId)) } },
+        { $skip: page * 20 },
+        { $limit: 20 },
+      ]).toArray();
+    }
+    return response.json(fileList.map((file) => ({
+      id: file._id,
+      userId: file.userId,
+      name: file.name,
+      type: file.type,
+      isPublic: file.isPublic,
+      parentId: file.parentId,
+    })));
   }
 
   // task7. File publish
