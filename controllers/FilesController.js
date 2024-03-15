@@ -77,7 +77,7 @@ class FilesController {
     });
   }
 
- static async getShow(request, response) {
+  static async getShow(request, response) {
     const { id } = request.params;
     const token = request.header('x-token');
     const key = `auth_${token}`;
@@ -111,7 +111,12 @@ class FilesController {
     const { parentId = '0', page = '0' } = request.query;
     const pageSize = 20;
     const pipeline = [
-      { $match: { parentId: parentId === '0' ? 0 : new mongodb.ObjectId(parentId) } },
+      {
+        $match: {
+          parentId: parentId === '0' ? 0 : new mongodb.ObjectId(parentId),
+          userId: new mongodb.ObjectId(userId),
+        },
+      },
       { $skip: parseInt(page, 10) * pageSize },
       { $limit: pageSize },
     ];
