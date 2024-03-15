@@ -108,11 +108,11 @@ class FilesController {
       return response.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { parentId, page } = request.query;
+    const { parentId = '0', page = '0' } = request.query;
     const pageSize = 20;
     const pipeline = [
-      { $match: { parentId: parentId ? new mongodb.ObjectId(parentId) : 0 } },
-      { $skip: page * pageSize },
+      { $match: { parentId: parentId === '0' ? 0 : new mongodb.ObjectId(parentId) } },
+      { $skip: parseInt(page, 10) * pageSize },
       { $limit: pageSize },
     ];
 
