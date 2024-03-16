@@ -18,6 +18,8 @@ router.get('/files/:id', FilesController.getShow);
 router.get('/files', FilesController.getIndex);
 // Task 8 route
 router.get('/files/:id/data', FilesController.getFile);
+// Task 9 route
+router.get('/files/:id/data', FilesController.getFile);
 
 // POSTs ROUTES **********************************
 router.post('/users', UsersController.postNew);
