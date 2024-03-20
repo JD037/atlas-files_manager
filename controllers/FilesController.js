@@ -224,7 +224,7 @@ class FilesController {
       return response.status(400).json({ error: "A folder doesn't have content" });
     }
 
-    if (!file.isPublic && (!currUserId || currUserId.toString() !== file.userId.toString())) {
+    if (!file.isPublic && (!currUserId || file.userId.toString() !== currUserId)) {
       return response.status(404).json({ error: 'Not found' });
     }
 
