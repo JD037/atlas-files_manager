@@ -230,7 +230,7 @@ class FilesController {
       return response.status(404).json({ error: 'Not found' });
     } */
 
-    if (!file.isPublic && (!currUserId || file.userId.toString() !== currUserId)) {
+    if (!file.isPublic || currUserId.toString() !== file.userId.toString()) {
       return response.status(404).json({ error: 'Not found' });
     }
 
