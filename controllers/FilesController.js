@@ -217,7 +217,7 @@ class FilesController {
     const file = await dbClient.files.findOne({ _id: new mongodb.ObjectId(id) });
 
     // no file document is linked to the ID
-    if (!file) {
+    if (!file && !file.isPublic) {
       console.log('File not found');
       return response.status(404).json({ error: 'Not found' });
     }
