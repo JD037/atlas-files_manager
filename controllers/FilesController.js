@@ -216,15 +216,21 @@ class FilesController {
 
     const file = await dbClient.files.findOne({ _id: new mongodb.ObjectId(id) });
 
+    // no file document is linked to the ID
     if (!file) {
+      console.log('File not found');
       return response.status(404).json({ error: 'Not found' });
     }
-
+    // Check if the file is a folder
     if (file.type === 'folder') {
       return response.status(400).json({ error: "A folder doesn't have content" });
     }
 
-    if (!file.isPublic && (!currUserId || file.userId.toString() !== currUserId)) {
+    /* if (!file.isPublic && (!currUserId || file.userId.toString() !== currUserId)) {
+      return response.status(404).json({ error: 'Not found' });
+    } */
+
+    if (!file.isPublic && (!currUserId || currUserId.toString() !== file.userId.toString())) {
       return response.status(404).json({ error: 'Not found' });
     }
 
