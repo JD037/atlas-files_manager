@@ -223,14 +223,10 @@ class FilesController {
     }
     // Check if the file is a folder
     if (file.type === 'folder') {
-      return response.status(404).json({ error: "A folder doesn't have content" });
+      return response.status(400).json({ error: "A folder doesn't have content" });
     }
 
-    /* if (!file.isPublic && (!currUserId || file.userId.toString() !== currUserId)) {
-      return response.status(404).json({ error: 'Not found' });
-    } */
-
-    if (!file.isPublic || currUserId.toString() !== file.userId.toString()) {
+    if (!file.isPublic && (!currUserId || file.userId.toString() !== currUserId)) {
       return response.status(404).json({ error: 'Not found' });
     }
 
