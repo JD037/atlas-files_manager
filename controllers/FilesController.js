@@ -222,12 +222,17 @@ class FilesController {
       return response.status(404).json({ error: 'Not found' });
     }
     // Check if the file is a folder
-    if (file.type === 'folder' && !file.isPublic) {
+    if (file.type === 'folder') {
       return response.status(400).json({ error: "A folder doesn't have content" });
     }
 
-    if (!file.isPublic && (!currUserId || file.userId.toString() !== currUserId)) {
+    /* if (!file.isPublic && (!currUserId || file.userId.toString() !== currUserId)) {
       return response.status(404).json({ error: 'Not found' });
+    } */
+    if (!file.isPublic) {
+      if (!currUserId || currUserId !== file.userId) {
+        return response.status(404).json({ error: 'Not found' });
+      }
     }
 
     const filePath = file.localPath;
