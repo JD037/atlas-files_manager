@@ -10,7 +10,6 @@ const imageThumbnail = require('image-thumbnail');
 const mime = require('mime-types');
 const dbClient = require('../utils/db'); // import mongo user
 const redisClient = require('../utils/redis');
-const { fileQueue } = require('../worker');
 
 // Create a Bull queue
 const fileQueue = new Bull('fileQueue');
@@ -214,46 +213,46 @@ class FilesController {
     const token = request.header('x-token');
     const key = `auth_${token}`;
     const currUserId = await redisClient.get(key);
-  
+
     const file = await dbClient.files.findOne({ _id: new mongodb.ObjectId(id) });
-  
+
     if (!file) {
       return response.status(404).json({ error: 'Not found' });
     }
-  
+
     if (file.type === 'folder') {
       return response.status(400).json({ error: "A folder doesn't have content" });
     }
-  
-    /* if (!file.isPublic && (!currUserId || currUserId.toString() !== file.userId.toString())) {
+
+    if (!file.isPublic && (!currUserId || currUserId.toString() !== file.userId.toString())) {
       return response.status(404).json({ error: 'Not found' });
-    } */
-  
+    }
+
     const filePath = file.localPath;
     if (!fs.existsSync(filePath)) {
       return response.status(404).json({ error: 'Not found' });
     }
-  
+
     const { size } = request.query;
-  
+
     if (size && (size === '500' || size === '250' || size === '100')) {
       const thumbnailPath = `${filePath}_${size}`;
-  
+
       if (!fs.existsSync(thumbnailPath)) {
         return response.status(404).json({ error: 'Not found' });
       }
-  
+
       const thumbnailContent = await fs.promises.readFile(thumbnailPath);
       const mimeType = mime.lookup(file.name);
-  
+
       response.setHeader('Content-Type', mimeType);
       response.send(thumbnailContent);
       return null;
     }
-  
+
     const fileContent = await fs.promises.readFile(filePath);
     const mimeType = mime.lookup(file.name);
-  
+
     response.setHeader('Content-Type', mimeType);
     response.send(fileContent);
     return null;
@@ -283,11 +282,10 @@ fileQueue.process(async (job, done) => {
   const filePath = file.localPath;
 
   const sizes = [500, 250, 100];
-  const thumbnailPromises = sizes.map(size => {
+  const thumbnailPromises = sizes.map((size) => {
     const thumbnailPath = `${filePath}_${size}`;
-    return imageThumbnail(filePath, { width: size }).then(thumbnail => {
-      return fs.promises.writeFile(thumbnailPath, thumbnail);
-    });
+    return imageThumbnail(filePath, { width: size })
+      .then((thumbnail) => fs.promises.writeFile(thumbnailPath, thumbnail));
   });
 
   await Promise.all(thumbnailPromises);
