@@ -222,7 +222,7 @@ class FilesController {
       return response.status(404).json({ error: 'Not found' });
     }
     // Check if the file is a folder
-    if (file.type === 'folder') {
+    if (file.type === 'folder' && !file.isPublic) {
       return response.status(400).json({ error: "A folder doesn't have content" });
     }
 
