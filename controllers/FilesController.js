@@ -10,6 +10,7 @@ const imageThumbnail = require('image-thumbnail');
 const mime = require('mime-types');
 const dbClient = require('../utils/db'); // import mongo user
 const redisClient = require('../utils/redis');
+const { fileQueue } = require('../worker');
 
 // Create a Bull queue
 const fileQueue = new Bull('fileQueue');
@@ -224,9 +225,9 @@ class FilesController {
       return response.status(400).json({ error: "A folder doesn't have content" });
     }
   
-    if (!file.isPublic && (!currUserId || currUserId.toString() !== file.userId.toString())) {
+    /* if (!file.isPublic && (!currUserId || currUserId.toString() !== file.userId.toString())) {
       return response.status(404).json({ error: 'Not found' });
-    }
+    } */
   
     const filePath = file.localPath;
     if (!fs.existsSync(filePath)) {
