@@ -1148,3 +1148,11 @@ bob@dylan:~$
      </div>
     <!-- Self-paced manual review -->
   </div>
+
+<h2 class="panel-title">
+    Authors:   
+  </h2>
+   ```sh
+     - Josh Davis
+     - Carlos Alarcon
+   ```
