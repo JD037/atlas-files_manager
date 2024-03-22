@@ -1150,9 +1150,9 @@ bob@dylan:~$
   </div>
 
 <h2 class="panel-title">
-    Authors:   
-  </h2>
-   ```sh
-     - Josh Davis
-     - Carlos Alarcon
-   ```
+    Authors:   </h2>
+
+```sh
+- Josh Davis
+- Carlos Alarcon
+```
